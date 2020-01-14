@@ -1,4 +1,4 @@
 # This repository belongs to the cool sock gang.
-![](avocado.gif)
+![](snow-crystal.gif)
 
 Contact Joostopher for further info.
