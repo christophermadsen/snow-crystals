@@ -24,6 +24,7 @@ class Snowflake_Model:
         self.cells = []
         self.generate_cells()
 
+
     def generate_cells(self):
         for row in range(0, self.grid_height):
             self.cells.append([])
@@ -31,10 +32,10 @@ class Snowflake_Model:
                 # to test if grid is working (needs to be one filled ofc)
                 if row == int(self.grid_height/2) and col == int(self.grid_height/2):
                     self.cells[row].append(1)
-                    Cell(row, col, 1)
+                    grid[({}, {}).format(row, col)] = Cell(0, 0, 1)
                 else:
                     self.cells[row].append(0)
-                    Cell(row, col, self.beta)
+                    grid[({}, {}).format(row, col)] = Cell(0, 0, self.beta)
 
     def if_receptive(self):
         neighbours = get_neigbours(grid, hexagon)
@@ -56,13 +57,18 @@ class Snowflake_Model:
         for row in range(0, self.grid_height):
             for col in range(0, self.grid_width):
                 if if_receptive(self):
-                    self.v = self.v + self.gamma
-                    self.u = self.u + self.alpha/2 * (umean_neighbours(self) - self.u)
+                    self.u = 0
+                    self.v = self.state
                 else:
+                    self.u = self.state
                     self.v = 0
-                    self.u = self.u + self.alpha/2 * (umean_neighbours(self) - self.u)
-                self.state = self.v + self.u
-                Cell(row, col, self.u, self.v, self.state)
+
+        for row in range(0, self.grid_height):
+            for col in range(0, self.grid_width):
+                u = self.u + self.alpha/2 * (umean_neighbours(self) - self.u)
+                v = self.v + self.gamma
+            self.state = self.u + self.v
+            Cell(row, col, self.u, sefl.v, self.state)
 
     def get_cell_value(self, row, col):
         """ Returning value of one cell """
@@ -90,10 +96,8 @@ class Snowflake_Model:
                                                 3, 4, 6, 4, 5, 6, 0, 5, 6],
                                                 ('v2i', hex_coords))
 
-        class Cell:
-            def __init__(self, row, col, u, v, state):
-                self.row = row
-                self.col = col
-                self.u = u
-                self.v = v
-                self.state = state
+    class Cell:
+        def __init__(self, u, v, state):
+            self.u = u
+            self.v = v
+            self.state = state

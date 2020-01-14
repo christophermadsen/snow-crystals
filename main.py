@@ -12,12 +12,11 @@ class Window(pyglet.window.Window):
         self.snowflakemodel = Snowflake_Model(self.get_size()[0],
                                             self.get_size()[1],
                                             20, 0, 0, 0)
-        pyglet.clock.schedule_interval(self.update, 1.0/24.0)
+        pyglet.clock.schedule_interval(self.update, 1.0)
 
     def on_draw(self):
         self.clear()
         self.snowflakemodel.draw()
-
 
     def update(self, dt):
         self.snowflakemodel.run_rules()
