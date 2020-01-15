@@ -1,26 +1,30 @@
-import pyglet
-from snowflake import Snowflake_Model
+"""
+.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.
+Authors:                                                                    *
+    Fenna Houtsma, Christopher Buch Madsen, Guido Vaessen                   *
+                                                                            *
+Date:                                                                       *
+    January 2020                                                            *
+*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*
+"""
 
-""" Making the cellular automata grid:
-The grid is made using pyglet package, where you can create
-a window. """
+from drawing2 import DrawCrystal
+from hexagonal_grid import CrystalLattice
+import pyglet
 
 class Window(pyglet.window.Window):
-
     def __init__(self):
         super(Window, self).__init__(600, 600)
-        self.snowflakemodel = Snowflake_Model(self.get_size()[0],
-                                            self.get_size()[1],
-                                            20, 0, 0, 0)
-        pyglet.clock.schedule_interval(self.update, 1.0)
+        self.CL = CrystalLattice(30, gamma=0.01, alpha=0.1, beta=0.5)
+        self.drawing = DrawCrystal(self.CL, self.get_size()[0], hexagon_side_length=5)
+        pyglet.clock.schedule_interval(self.update, 1.0/24)
 
     def on_draw(self):
         self.clear()
-        self.snowflakemodel.draw()
+        self.drawing.draw()
 
     def update(self, dt):
-        self.snowflakemodel.run_rules()
-
+        self.CL.diffusion()
 
 if __name__ == '__main__':
     window = Window()

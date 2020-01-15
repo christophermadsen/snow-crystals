@@ -7,8 +7,6 @@ Date:                                                                       *
     January 2020                                                            *
 *~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*
 """
-import numpy  as np
-
 class Hexagon:
     def __init__(self, u, v, state):
         self.u = u
@@ -16,7 +14,7 @@ class Hexagon:
         self.state = state
 
 class CrystalLattice:
-    def __init__(self, lattice_size, alpha, beta, gamma):
+    def __init__(self, lattice_size, alpha=0.5, beta=0.5, gamma=0.5):
         self.size = lattice_size
         self.lattice = {}
         self.alpha = alpha
@@ -60,11 +58,12 @@ class CrystalLattice:
         # We make sure to check if the neighbour is within the lattice
         return [qr for qr in neighbourhood if qr in self.lattice]
 
-    def umean_neigbours(self, hexagon_coordinates):
-        return np.mean([self.lattice[qr].u for qr in get_neighbours(hexagon_coordinates)])
+    def umean_neighbours(self, hexagon_coordinates):
+        neighbours_u = [self.lattice[qr].u for qr in self.get_neighbours(hexagon_coordinates)]
+        return sum(neighbours_u)/len(neighbours_u)
 
     def if_receptive(self, hexagon_coordinates):
-        neighbours = get_neigbours(hexagon_coordinates)
+        neighbours = self.get_neighbours(hexagon_coordinates)
         for hex in neighbours:
             state = self.lattice[hex].state
             if state == 1:
@@ -72,24 +71,15 @@ class CrystalLattice:
         return False
 
     def diffusion(self):
-        for hex in self.lattice.keys():
-            if if_receptive(hex):
-                self.lattice[hex].u = 0
-                self.lattice[hex].v = self.lattice[hex].state
+        for coordinate in self.lattice.keys():
+            if self.if_receptive(coordinate):
+                self.lattice[coordinate].u = 0
+                self.lattice[coordinate].v = self.lattice[coordinate].state
             else:
-                self.lattice[hex].u = self.lattice[hex].state
-                self.lattice[hex].v = 0
+                self.lattice[coordinate].u = self.lattice[coordinate].state
+                self.lattice[coordinate].v = 0
 
-        for cell_object in self.lattice.values():
-            cell_object.u = cell_object.u + self.alpha/2 * (umean_neighbours(self) - cell_object.u)
-            cell_object.v = cell_object.v + self.gamma
-            cell_object.state = cell_object.u + cell_object.v
-        pass
-        # for every hexagon coordinate:
-        #     get_neighbours(coordinates)
-        #     calculate diffusion
-        #     update Cell at coordinate
-
-    def whatever(self):
-        pass
-        # ...
+        for hexagon, coordinate in zip(self.lattice.values(), self.lattice.keys()):
+            self.lattice[coordinate].u = hexagon.u + self.alpha/2 * (self.umean_neighbours(coordinate) - hexagon.u)
+            self.lattice[coordinate].v = hexagon.v + self.gamma
+            self.lattice[coordinate].state = hexagon.u + hexagon.v
