@@ -30,7 +30,7 @@ def compute_offsets(centerx, centery, size, hexagon_coordinates):
     new_y = centery + (r * h) + (q * h)/2 # when moving q, h/2 is added to y
     return new_x, new_y
 
-hexgrid = CrystalLattice(30)
+hexgrid = CrystalLattice(30, 0.5, 0.5, 0.5)
 
 size = 5
 hexagons = []
@@ -41,19 +41,31 @@ for key in hexgrid.lattice:
 vertex_order = [0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 5, 0, 5, 6, 0, 6, 1]
 iceblue = (162,210,223,162,210,223,162,210,223,162,210,223,162,210,223,162,210,223,162,210,223)
 
-class Window(pyglet.window.Window):
-    def __init__(self):
+class Window(pyglet.window.Window, CrystalLattice):
+    def __init__(self, crystal_lattice):
         super(Window, self).__init__()
         self.set_size(600, 600)
+        self.lattice = crystal_lattice.lattice
 
     def on_draw(self):
-        self.clear()
-        for hex in hexagons:
-            pyglet.graphics.draw_indexed(7, pyglet.gl.GL_TRIANGLES,
-                                        vertex_order, ('v2i', hex), ('c3B', iceblue))
+        print('hi')
+        for t in range(10):
+            print(self.lattice)
+            self.clear()
+            print(self.lattice)
+            for hex_corners, hex_object in zip(hexagons, self.lattice.values()):
+                print(self.lattice)
+                print('bah')
+                print(hex_object.state)
+                if hex_object.state >= 1:
+                    print('yay')
+                    pyglet.graphics.draw_indexed(7, pyglet.gl.GL_TRIANGLES,
+                                            vertex_order, ('v2i', hex),
+                                            ('c3B', iceblue))
+            CrystalLattice.diffusion()
 
 if __name__ == '__main__':
-    window = Window()
+    window = Window(CrystalLattice)
     pyglet.app.run()
 
 # grid = {(3, 3) : cell1,
