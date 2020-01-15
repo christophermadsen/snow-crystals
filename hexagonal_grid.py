@@ -7,6 +7,7 @@ Date:                                                                       *
     January 2020                                                            *
 *~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*
 """
+import numpy  as np
 
 class Hexagon:
     def __init__(self, u=1, v=1):
@@ -53,7 +54,13 @@ class CrystalLattice:
         # We make sure to check if the neighbour is within the lattice
         return [qr for qr in neighbourhood if qr in self.lattice]
 
-    def diffusion(self):
+    def umean_neigbours(self, hexagon_coordinates):
+        return np.mean([self.lattice[qr].u for qr in get_neighbours(hexagon_coordinates)])
+
+
+    def update(self):
+    
+
         pass
         # for every hexagon coordinate:
         #     get_neighbours(coordinates)

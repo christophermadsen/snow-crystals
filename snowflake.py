@@ -70,10 +70,6 @@ class Snowflake_Model:
             self.state = self.u + self.v
             Cell(row, col, self.u, sefl.v, self.state)
 
-    def get_cell_value(self, row, col):
-        """ Returning value of one cell """
-        pass
-
 
     def draw(self):
 
