@@ -64,16 +64,29 @@ class CrystalLattice:
         # We make sure to check if the neighbour is within the lattice
         return [qr for qr in neighbourhood if qr in self.lattice]
 
-    def is_edge(self, hexagon_coordinates):
-        if self.lattice[he]
+    def is_edge(self, coordinates):
+        """
+        edge cells are defined at the cells at the boundaries of the grid
+        for these cells either q or r should be equal to +- the grid dimensions
+        """
+        if coordinates[0] in [self.size, -self.size] or coordinates[1] in [self.size, -self.size]:
+            return True
 
-    def umean_neighbours(self, hexagon_coordinates):
+        else:
+            return False
+
+    def is_end_branch(self, coordinates):
+        if coordinates in {(-30, 30), (30, -30), (0, 30), (0, -30), (30, 0), (-30, 0)}:
+            return True
+        else:
+            return False
+
+    def umean_neighbours(self, coordinates):
         """
         returns the average amount of water that diffuses from the 6
         neighbours of a given cell
         """
-        return np.mean([self.lattice[qr].u for qr in self.get_neighbours(hexagon_coordinates)])
-
+        return np.mean([self.lattice[qr].u for qr in self.get_neighbours(coordinates)])
 
     def if_receptive(self, hexagon_coordinates):
         """
@@ -93,8 +106,19 @@ class CrystalLattice:
         return False
 
     def diffusion(self):
+        ends = {(-(self.size-1), self.size-1), (self.size-1, -(self.size-1)),
+        (0, self.size-1), (0, -(self.size-1)), (self.size-1, 0), (-(self.size-1), 0)}
+        frozen_ends = 0
+        for coordinate in ends:
+            if self.lattice[coordinate].state >= 1:
+                frozen_ends += 1
+
+        if frozen_ends == 6:
+            return
+
         # go through all cells and reset the u and v
         for hex in self.lattice.keys():
+
             # for receptive cells
             if self.if_receptive(hex):
                 # no water diffuses
@@ -111,14 +135,31 @@ class CrystalLattice:
 
         """
         loop through the dict of coordinates and values
-        cell_object[1] has the values u, v and states
-        cell_object[0] has the coordinates of the cell
+        cell[1] has the values: u, v and states
+        cell[0] has the coordinates of the cell
         """
-        for cell_object in self.lattice.items():
+        for cell in self.lattice.items():
             # implement the rules from reiter's model
-            cell_object[1].u = cell_object[1].u + self.alpha/2 * (self.umean_neighbours(cell_object[0]) - cell_object[1].u)
-            cell_object[1].v = cell_object[1].v + self.gamma
-            cell_object[1].state = cell_object[1].u + cell_object[1].v
+
+            # edge cells
+            # if self.is_edge(cell[0]):
+            #     cell[1].u = self.beta
+            #
+            # # remaining cells
+            # else:
+            cell[1].u = cell[1].u + self.alpha/2 * (self.umean_neighbours(cell[0]) - cell[1].u)
+
+
+            # receptive cells not edge cells
+            if self.if_receptive(cell[0]) and self.is_edge(cell[0]) == False:
+                cell[1].v = cell[1].v + self.gamma
+
+
+            # for all cells state = u + v
+            cell[1].state = cell[1].u + cell[1].v
+
+
+
 
         # for every hexagon coordinate:
         #     get_neighbours(coordinates)
