@@ -11,11 +11,12 @@ Date:                                                                       *
 import numpy as np
 
 class Hexagon:
-    def __init__(self, u, v, state):
+    def __init__(self, u, v, state, mean_u):
         self.u = u
         self.v = v
         self.state = state
-        self.old_state = []
+        self.mean_u = mean_u
+        # self.delta = delta
 
 class CrystalLattice:
     def __init__(self, lattice_size, alpha, beta, gamma):
@@ -43,11 +44,34 @@ class CrystalLattice:
                     continue
                 # Flipping q and r sorts the lattice in this construction method
                 if q != 0 or r != 0:
-                    self.lattice[(r, q)] = Hexagon(self.beta, 0, self.beta)
+                    self.lattice[(r, q)] = Hexagon(self.beta, 0, self.beta, 0)
                 else:
-                    self.lattice[(r, q)] = Hexagon(0, 1, 1)
+                    self.lattice[(r, q)] = Hexagon(0, 1, 1, 0)
 
-            # print([self.lattice.keys()][0][0])
+    def eq_neighbours(self, coordinate):
+        r = coordinate[0]
+        q = coordinate[1]
+        if r < 0 and r%2 == 0 and q > 0:
+            return (r+1, q-1), (r+1, q-2)
+        elif r > 0 and r%2 == 0 and q < 0:
+            return (r-1, q-1), (r-1, q+2)
+        elif r > 0 and q < 0 and q%2 == 0:
+            return (r+1, q+1), (r-2, q+1)
+        elif r < 0 and q > 0 and q%2 == 0:
+            return (r+2, q-1), (r-1, q-1)
+        elif (r < 0 and q > 0) or (r > 0 and q < 0):
+            return (r-1, q-1), (r+1, q+1)
+        elif r != 0:
+            return (r+1, q-2), (r-1, q+2)
+        elif q > 0:
+            return (r-2, q+1), (r+2, q-1)
+        elif r == 0:
+            return (r+2, q-1), (r-2, q+1)
+        elif q == 0:
+            return (r-1, q+2), (r+1, q-2)
+
+    def mean_s(self, cell):
+        return np.mean([s for s in self.eq_neighbours(cell)])
 
     def get_neighbours(self, hexagon_coordinates):
         # The neighbourhood of a hexagon
@@ -75,11 +99,27 @@ class CrystalLattice:
         else:
             return False
 
-    def is_end_branch(self, coordinates):
-        if coordinates in {(-30, 30), (30, -30), (0, 30), (0, -30), (30, 0), (-30, 0)}:
+    def all_ends_frozen(self):
+        """
+        Returns True if all 6 main branches are fully grown
+        """
+        frozen_ends = 0
+
+        # coordinates of the ends of the main branches
+        for coordinate in {(-(self.size-1), self.size-1), (self.size-1, -(self.size-1)),
+        (0, self.size-1), (0, -(self.size-1)), (self.size-1, 0), (-(self.size-1), 0)}:\
+
+            # count the fully grown branches
+            if self.lattice[coordinate].state >= 1:
+                frozen_ends += 1
+
+        # if all branches are fully grown
+        if frozen_ends == 6:
             return True
+
         else:
             return False
+
 
     def umean_neighbours(self, coordinates):
         """
@@ -106,18 +146,14 @@ class CrystalLattice:
         return False
 
     def diffusion(self):
-        ends = {(-(self.size-1), self.size-1), (self.size-1, -(self.size-1)),
-        (0, self.size-1), (0, -(self.size-1)), (self.size-1, 0), (-(self.size-1), 0)}
-        frozen_ends = 0
-        for coordinate in ends:
-            if self.lattice[coordinate].state >= 1:
-                frozen_ends += 1
-
-        if frozen_ends == 6:
+        # stop the simulation if all main branches are fully grown
+        if self.all_ends_frozen():
             return
 
         # go through all cells and reset the u and v
         for hex in self.lattice.keys():
+
+            self.lattice[hex].mean_u = self.umean_neighbours(hex)
 
             # for receptive cells
             if self.if_receptive(hex):
@@ -141,31 +177,14 @@ class CrystalLattice:
         for cell in self.lattice.items():
             # implement the rules from reiter's model
 
-            # edge cells
-            # if self.is_edge(cell[0]):
-            #     cell[1].u = self.beta
-            #
-            # # remaining cells
-            # else:
-            cell[1].u = cell[1].u + self.alpha/2 * (self.umean_neighbours(cell[0]) - cell[1].u)
+            # numerical approximation to the diffusion equation
+            cell[1].u = cell[1].u + self.alpha/2 * (cell[1].mean_u - cell[1].u)
 
-
-            # receptive cells not edge cells
-            if self.if_receptive(cell[0]) and self.is_edge(cell[0]) == False:
+            # receptive cells
+            if self.if_receptive(cell[0]):
                 cell[1].v = cell[1].v + self.gamma
 
-
-            # for all cells state = u + v
+            # for all cells: state = u + v
             cell[1].state = cell[1].u + cell[1].v
 
-
-
-
-        # for every hexagon coordinate:
-        #     get_neighbours(coordinates)
-        #     calculate diffusion
-        #     update Cell at coordinate
-
-    def whatever(self):
-        pass
-        # ...
+        return cell[1].u
