@@ -11,11 +11,12 @@ Date:                                                                       *
 import numpy as np
 
 class Hexagon:
-    def __init__(self, u, v, state, mean_u):
+    def __init__(self, u, v, state, mean_u, receptive):
         self.u = u
         self.v = v
         self.state = state
         self.mean_u = mean_u
+        self.receptive = receptive
         # self.delta = delta
 
 class CrystalLattice:
@@ -44,9 +45,9 @@ class CrystalLattice:
                     continue
                 # Flipping q and r sorts the lattice in this construction method
                 if q != 0 or r != 0:
-                    self.lattice[(r, q)] = Hexagon(self.beta, 0, self.beta, 0)
+                    self.lattice[(r, q)] = Hexagon(self.beta, 0, self.beta, 0, False)
                 else:
-                    self.lattice[(r, q)] = Hexagon(0, 1, 1, 0)
+                    self.lattice[(r, q)] = Hexagon(0, 1, 1, 0, False)
 
     def eq_neighbours(self, coordinate):
         r = coordinate[0]
@@ -148,7 +149,11 @@ class CrystalLattice:
     def diffusion(self):
         # stop the simulation if all main branches are fully grown
         if self.all_ends_frozen():
-            return 
+            return
+
+        for hex in self.lattice.keys():
+            self.lattice[hex].mean_u = self.umean_neighbours(hex)
+
 
         # go through all cells and reset the u and v
         for hex in self.lattice.keys():
@@ -160,6 +165,7 @@ class CrystalLattice:
                 # all water stays in the cell
                 self.lattice[hex].v = self.lattice[hex].state
                 # hello Fenna
+                self.lattice[hex].receptive = True
 
             # for non-receptive cells
             else:
@@ -173,7 +179,7 @@ class CrystalLattice:
         cell[1] has the values: u, v and states
         cell[0] has the coordinates of the cell
         """
-        for cell in self.lattice.items():
+        for hex in self.lattice.keys():
             # implement the rules from reiter's model
 
             # edge cells
@@ -182,15 +188,12 @@ class CrystalLattice:
             #
             # # remaining cells
             # else:
-            cell[1].u = cell[1].u + self.alpha/2 * (self.umean_neighbours(cell[0]) - cell[1].u)
-
+            self.lattice[hex].u = self.lattice[hex].u + self.alpha/2 * (self.lattice[hex].mean_u - self.lattice[hex].u)
 
             # receptive cells not edge cells
-            if self.if_receptive(cell[0]) and self.is_edge(cell[0]) == False:
-                cell[1].v = cell[1].v + self.gamma
+            if self.lattice[hex].receptive:
+                self.lattice[hex].v = self.lattice[hex].v + self.gamma
 
 
             # for all cells state = u + v
-            cell[1].state = cell[1].u + cell[1].v
-
-        return cell[1].u
+            self.lattice[hex].state = self.lattice[hex].u + self.lattice[hex].v
