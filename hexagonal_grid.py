@@ -148,7 +148,7 @@ class CrystalLattice:
     def diffusion(self):
         # stop the simulation if all main branches are fully grown
         if self.all_ends_frozen():
-            return
+            return 
 
         # go through all cells and reset the u and v
         for hex in self.lattice.keys():
