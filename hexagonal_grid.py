@@ -161,6 +161,7 @@ class CrystalLattice:
                 self.lattice[hex].u = 0
                 # all water stays in the cell
                 self.lattice[hex].v = self.lattice[hex].state
+                # hello Fenna
 
             # for non-receptive cells
             else:
