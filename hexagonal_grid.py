@@ -153,8 +153,6 @@ class CrystalLattice:
         # go through all cells and reset the u and v
         for hex in self.lattice.keys():
 
-            self.lattice[hex].mean_u = self.umean_neighbours(hex)
-
             # for receptive cells
             if self.if_receptive(hex):
                 # no water diffuses
@@ -178,14 +176,21 @@ class CrystalLattice:
         for cell in self.lattice.items():
             # implement the rules from reiter's model
 
-            # numerical approximation to the diffusion equation
-            cell[1].u = cell[1].u + self.alpha/2 * (cell[1].mean_u - cell[1].u)
+            # edge cells
+            # if self.is_edge(cell[0]):
+            #     cell[1].u = self.beta
+            #
+            # # remaining cells
+            # else:
+            cell[1].u = cell[1].u + self.alpha/2 * (self.umean_neighbours(cell[0]) - cell[1].u)
 
-            # receptive cells
-            if self.if_receptive(cell[0]):
+
+            # receptive cells not edge cells
+            if self.if_receptive(cell[0]) and self.is_edge(cell[0]) == False:
                 cell[1].v = cell[1].v + self.gamma
 
-            # for all cells: state = u + v
+
+            # for all cells state = u + v
             cell[1].state = cell[1].u + cell[1].v
 
         return cell[1].u

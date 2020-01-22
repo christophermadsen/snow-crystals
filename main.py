@@ -15,9 +15,15 @@ import pyglet
 class Window(pyglet.window.Window):
     def __init__(self):
         super(Window, self).__init__(600, 600)
+<<<<<<< Updated upstream
         self.CL = CrystalLattice(30, alpha=1, beta=0.8, gamma=0.001)
         self.drawing = DrawCrystal(self.CL, self.get_size()[0], hexagon_side_length=5)
         pyglet.clock.schedule_interval(self.update, 1.0/12)
+=======
+        self.CL = CrystalLattice(30, gamma=0.0001, alpha = 1, beta=0.6)
+        self.drawing = DrawCrystal(self.CL, self.get_size()[0], hexagon_side_length=5)
+        pyglet.clock.schedule_interval(self.update, 1.0/5)
+>>>>>>> Stashed changes
 
     def on_draw(self):
         self.clear()

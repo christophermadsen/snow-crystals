@@ -13,7 +13,7 @@ import math
 import pyglet
 
 class DrawCrystal:
-    def __init__(self, CrystalLatticeObject, window_size, hexagon_side_length=0.000001):
+    def __init__(self, CrystalLatticeObject, window_size, hexagon_side_length):
         self.CL = CrystalLatticeObject
         self.centerx, self.centery = [int(round((window_size/2) - 1))] * 2
         self.hex_size = hexagon_side_length
