@@ -9,6 +9,8 @@ Date:                                                                       *
 """
 
 import numpy as np
+import sys
+import pyglet
 
 class Hexagon:
     def __init__(self, u, v, state, mean_u, receptive):
@@ -114,9 +116,18 @@ class CrystalLattice:
             if self.lattice[coordinate].state >= 1:
                 frozen_ends += 1
 
+        frozen_list = [0]
+        frozen = 0
+        for hex in self.lattice.keys():
+            if self.lattice[hex].state >= 1:
+                frozen += 1
+        frozen_list.append(frozen)
+
         # if all branches are fully grown
-        if frozen_ends == 6:
-            return True
+        if frozen_ends == 6 or frozen_list[-1] == frozen_list[-2]:
+            print('amount of frozen cells = {}, beta = {}, gamma = {}'.format(frozen, self.beta, self.gamma))
+            pyglet.image.get_buffer_manager().get_color_buffer().save('images/beta={},gamma={}.png'.format(self.beta, self.gamma))
+            sys.exit()
 
         else:
             return False
