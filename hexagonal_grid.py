@@ -11,6 +11,9 @@ Date:                                                                       *
 import numpy as np
 import sys
 import pyglet
+import time
+import csv
+start_time = time.time()
 
 class Hexagon:
     def __init__(self, u, v, state, mean_u, receptive):
@@ -19,16 +22,18 @@ class Hexagon:
         self.state = state
         self.mean_u = mean_u
         self.receptive = receptive
-        # self.delta = delta
 
 class CrystalLattice:
-    def __init__(self, lattice_size, alpha, beta, gamma):
+    def __init__(self, lattice_size, beta, gamma, alpha):
+        print(beta, gamma)
         self.size = lattice_size
         self.lattice = {}
         self.alpha = alpha
         self.beta = beta
         self.gamma = gamma
+        self.frozen_list = [0]*19
         self.create_hexagonal_lattice()
+        print(self.beta, self.gamma)
 
     def create_hexagonal_lattice(self):
         # We're using an axial coordinate system.
@@ -116,18 +121,20 @@ class CrystalLattice:
             if self.lattice[coordinate].state >= 1:
                 frozen_ends += 1
 
-        frozen_list = [0]
         frozen = 0
         for hex in self.lattice.keys():
             if self.lattice[hex].state >= 1:
                 frozen += 1
-        frozen_list.append(frozen)
+        self.frozen_list.append(frozen)
 
         # if all branches are fully grown
-        if frozen_ends == 6 or frozen_list[-1] == frozen_list[-2]:
+        if frozen_ends == 6 or self.frozen_list[-1] == self.frozen_list[-20]:
             print('amount of frozen cells = {}, beta = {}, gamma = {}'.format(frozen, self.beta, self.gamma))
             pyglet.image.get_buffer_manager().get_color_buffer().save('images/beta={},gamma={}.png'.format(self.beta, self.gamma))
-            sys.exit()
+            with open('statisticaloutcomes.csv','a') as fd:
+                writer=csv.writer(fd)
+                writer.writerow([self.beta, self.gamma, frozen, time.time() - start_time])
+            pyglet.app.exit()
 
         else:
             return False
@@ -159,8 +166,7 @@ class CrystalLattice:
 
     def diffusion(self):
         # stop the simulation if all main branches are fully grown
-        if self.all_ends_frozen():
-            return
+        self.all_ends_frozen()
 
         for hex in self.lattice.keys():
             self.lattice[hex].mean_u = self.umean_neighbours(hex)
