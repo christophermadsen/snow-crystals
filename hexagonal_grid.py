@@ -12,6 +12,7 @@ import numpy as np
 import sys
 import time
 import pickle
+import pyglet
 start_time = time.time()
 
 class Hexagon:
@@ -25,13 +26,13 @@ class Hexagon:
         self.delta = delta
 
 class CrystalLattice:
-    def __init__(self, lattice_size, alpha, beta, gamma, epsilon):
+    def __init__(self, lattice_size, alpha, beta, gamma):
         self.size = lattice_size
         self.lattice = {}
         self.alpha = alpha
         self.beta = beta
         self.gamma = gamma
-        self.epsilon = epsilon
+        # self.epsilon = epsilon
         self.create_hexagonal_lattice()
 
     def create_hexagonal_lattice(self):
@@ -56,7 +57,8 @@ class CrystalLattice:
                     self.lattice[(r, q)] = Hexagon(0, 1, 1, 0, 0, False, 0)
 
     def frozen_area(self):
-        return sum([1 for cell in self.lattice.keys() if self.lattice[cell].state >= 1]) / len(self.lattice)
+        # returns the percentage of frozen area
+        return round(sum([1 for cell in self.lattice.keys() if self.lattice[cell].state >= 1]) / len(self.lattice) * 100, 2)
 
     def eq_neighbours(self, coordinates):
         r = coordinates[0]
@@ -118,7 +120,7 @@ class CrystalLattice:
 
         # coordinates of the ends of the main branches
         for coordinate in {(-(self.size-1), self.size-1), (self.size-1, -(self.size-1)),
-        (0, self.size-1), (0, -(self.size-1)), (self.size-1, 0), (-(self.size-1), 0)}:\
+        (0, self.size-1), (0, -(self.size-1)), (self.size-1, 0), (-(self.size-1), 0)}:
 
             # count the fully grown branches
             if self.lattice[coordinate].state >= 1:
@@ -133,9 +135,12 @@ class CrystalLattice:
 
         # if all branches are fully grown
         if frozen_ends == 6 or frozen_list[-1] == frozen_list[-2]:
-            print('amount of frozen cells = {}, beta = {}, gamma = {}'.format(frozen, self.beta, self.gamma))
+            print('{}% frozen cells'.format(self.frozen_area()))
+            print("--- %s seconds ---" % (time.time() - start_time))
+            print('beta = {}, gamma = {}'.format(self.beta, self.gamma))
             pyglet.image.get_buffer_manager().get_color_buffer().save('images/beta={},gamma={}.png'.format(self.beta, self.gamma))
-            sys.exit()
+            pyglet.app.exit()
+            return True
 
         else:
             return False
@@ -165,13 +170,6 @@ class CrystalLattice:
         return False
 
     def diffusion(self):
-        # stop the simulation if all main branches are fully grown
-        if self.all_ends_frozen():
-            print('{}% frozen cells'.format(round(self.frozen_area()*100, 2)))
-            print("--- %s seconds ---" % (time.time() - start_time))
-            return
-            # sys.exit()
-
         for hex in self.lattice.keys():
             # calculate how much water diffuses from neighbour cells
             self.lattice[hex].mean_u = self.umean_neighbours(hex)
@@ -213,6 +211,11 @@ class CrystalLattice:
 
             # for all cells state = u + v
             self.lattice[hex].state = self.lattice[hex].u + self.lattice[hex].v
+
+            # stop the simulation if all main branches are fully grown
+        if self.all_ends_frozen():
+            return True
+
 
             """
             The following part is from the enhanced reiter's model section of the
