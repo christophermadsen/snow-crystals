@@ -10,24 +10,28 @@ Date:                                                                       *
 
 import numpy as np
 import sys
-import pyglet
+import time
+import pickle
+start_time = time.time()
 
 class Hexagon:
-    def __init__(self, u, v, state, mean_u, receptive):
+    def __init__(self, u, v, state, mean_u, mean_s, receptive, delta):
         self.u = u
         self.v = v
         self.state = state
         self.mean_u = mean_u
+        self.mean_s = mean_s
         self.receptive = receptive
-        # self.delta = delta
+        self.delta = delta
 
 class CrystalLattice:
-    def __init__(self, lattice_size, alpha, beta, gamma):
+    def __init__(self, lattice_size, alpha, beta, gamma, epsilon):
         self.size = lattice_size
         self.lattice = {}
         self.alpha = alpha
         self.beta = beta
         self.gamma = gamma
+        self.epsilon = epsilon
         self.create_hexagonal_lattice()
 
     def create_hexagonal_lattice(self):
@@ -47,13 +51,16 @@ class CrystalLattice:
                     continue
                 # Flipping q and r sorts the lattice in this construction method
                 if q != 0 or r != 0:
-                    self.lattice[(r, q)] = Hexagon(self.beta, 0, self.beta, 0, False)
+                    self.lattice[(r, q)] = Hexagon(self.beta, 0, self.beta, 0, 0, False, 0)
                 else:
-                    self.lattice[(r, q)] = Hexagon(0, 1, 1, 0, False)
+                    self.lattice[(r, q)] = Hexagon(0, 1, 1, 0, 0, False, 0)
 
-    def eq_neighbours(self, coordinate):
-        r = coordinate[0]
-        q = coordinate[1]
+    def frozen_area(self):
+        return sum([1 for cell in self.lattice.keys() if self.lattice[cell].state >= 1]) / len(self.lattice)
+
+    def eq_neighbours(self, coordinates):
+        r = coordinates[0]
+        q = coordinates[1]
         if r < 0 and r%2 == 0 and q > 0:
             return (r+1, q-1), (r+1, q-2)
         elif r > 0 and r%2 == 0 and q < 0:
@@ -73,8 +80,9 @@ class CrystalLattice:
         elif q == 0:
             return (r-1, q+2), (r+1, q-2)
 
-    def mean_s(self, cell):
-        return np.mean([s for s in self.eq_neighbours(cell)])
+    def smean_eq_neighbours(self, cell):
+        return (1/3) * (self.lattice[cell].state + self.lattice[self.eq_neighbours(cell)[0]].state
+        + self.lattice[self.eq_neighbours(cell)[1]].state)
 
     def get_neighbours(self, hexagon_coordinates):
         # The neighbourhood of a hexagon
@@ -132,7 +140,6 @@ class CrystalLattice:
         else:
             return False
 
-
     def umean_neighbours(self, coordinates):
         """
         returns the average amount of water that diffuses from the 6
@@ -160,11 +167,16 @@ class CrystalLattice:
     def diffusion(self):
         # stop the simulation if all main branches are fully grown
         if self.all_ends_frozen():
+            print('{}% frozen cells'.format(round(self.frozen_area()*100, 2)))
+            print("--- %s seconds ---" % (time.time() - start_time))
             return
+            # sys.exit()
 
         for hex in self.lattice.keys():
+            # calculate how much water diffuses from neighbour cells
             self.lattice[hex].mean_u = self.umean_neighbours(hex)
 
+            # self.lattice[hex].mean_s = self.smean_eq_neighbours(hex)
 
         # go through all cells and reset the u and v
         for hex in self.lattice.keys():
@@ -175,7 +187,6 @@ class CrystalLattice:
                 self.lattice[hex].u = 0
                 # all water stays in the cell
                 self.lattice[hex].v = self.lattice[hex].state
-                # hello Fenna
                 self.lattice[hex].receptive = True
 
             # for non-receptive cells
@@ -185,26 +196,40 @@ class CrystalLattice:
                 # no water stays in the cell
                 self.lattice[hex].v = 0
 
-        """
-        loop through the dict of coordinates and values
-        cell[1] has the values: u, v and states
-        cell[0] has the coordinates of the cell
-        """
         for hex in self.lattice.keys():
             # implement the rules from reiter's model
 
-            # edge cells
-            # if self.is_edge(cell[0]):
-            #     cell[1].u = self.beta
-            #
-            # # remaining cells
-            # else:
-            self.lattice[hex].u = self.lattice[hex].u + self.alpha/2 * (self.lattice[hex].mean_u - self.lattice[hex].u)
+            # cells at the grid boundary stay the same
+            if self.is_edge(hex):
+                self.lattice[hex].u = self.beta
 
-            # receptive cells not edge cells
-            if self.lattice[hex].receptive:
+            else:
+                # numerical approximation to the diffusion equation
+                self.lattice[hex].u = self.lattice[hex].u + self.alpha/2 * (self.lattice[hex].mean_u - self.lattice[hex].u)
+
+            # receptive, not edge cells
+            if self.lattice[hex].receptive and not self.is_edge(hex):
                 self.lattice[hex].v = self.lattice[hex].v + self.gamma
-
 
             # for all cells state = u + v
             self.lattice[hex].state = self.lattice[hex].u + self.lattice[hex].v
+
+            """
+            The following part is from the enhanced reiter's model section of the
+            Li paper, but it doesn't work properly yet because the wrong eq_neighbours
+            are returned from the eq_neighbours function
+            """
+            # if both neighbours of the current cell aren't frozen
+            # neighbour0 = self.lattice[self.eq_neighbours(hex)[0]]
+            # neighbour1 = self.lattice[self.eq_neighbours(hex)[1]]
+
+            # if both neighbours of the current cell aren't frozen
+            # if all(state < 1 for state in (neighbour1.state, neighbour2.state)):
+            #
+            #     self.lattice[hex].delta +=  self.epsilon * (self.lattice[hex].mean_s - self.lattice[hex].state)
+            #
+            #     self.lattice[self.eq_neighbours(hex)[0]].delta += self.epsilon * (self.lattice[hex].mean_s - neighbour0.state)
+            #
+            #     self.lattice[self.eq_neighbours(hex)[1]].delta += self.epsilon * (self.lattice[hex].mean_s - neighbour1.state)
+            #
+            # self.lattice[hex].state += self.lattice[hex].delta
