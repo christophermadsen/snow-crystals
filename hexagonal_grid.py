@@ -13,6 +13,8 @@ import sys
 import time
 import pickle
 import pyglet
+import time
+import csv
 start_time = time.time()
 
 class Hexagon:
@@ -23,17 +25,18 @@ class Hexagon:
         self.mean_u = mean_u
         self.mean_s = mean_s
         self.receptive = receptive
-        self.delta = delta
 
 class CrystalLattice:
-    def __init__(self, lattice_size, alpha, beta, gamma):
+    def __init__(self, lattice_size, beta, gamma, alpha):
+        print(beta, gamma)
         self.size = lattice_size
         self.lattice = {}
         self.alpha = alpha
         self.beta = beta
         self.gamma = gamma
-        # self.epsilon = epsilon
+        self.frozen_list = [0]*19
         self.create_hexagonal_lattice()
+        print(self.beta, self.gamma)
 
     def create_hexagonal_lattice(self):
         # We're using an axial coordinate system.
@@ -126,12 +129,11 @@ class CrystalLattice:
             if self.lattice[coordinate].state >= 1:
                 frozen_ends += 1
 
-        frozen_list = [0]
         frozen = 0
         for hex in self.lattice.keys():
             if self.lattice[hex].state >= 1:
                 frozen += 1
-        frozen_list.append(frozen)
+        self.frozen_list.append(frozen)
 
         # if all branches are fully grown
         if frozen_ends == 6 or frozen_list[-1] == frozen_list[-2]:
