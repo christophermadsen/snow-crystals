@@ -13,6 +13,8 @@ import sys
 import time
 import pickle
 import pyglet
+import csv
+start_time = time.time()
 
 class Hexagon:
     def __init__(self, u, v, state, mean_u, mean_s, receptive):
@@ -30,11 +32,7 @@ class CrystalLattice:
         self.alpha = alpha
         self.beta = beta
         self.gamma = gamma
-        self.max_repetitions = 20
         self.create_hexagonal_lattice()
-        self.count_down = 0
-        self.previous_frozen_area = 0
-        self.sim_start_time = time.time()
 
     def create_hexagonal_lattice(self):
         # We're using an axial coordinate system.
@@ -53,9 +51,9 @@ class CrystalLattice:
                     continue
                 # Flipping q and r sorts the lattice in this construction method
                 if q != 0 or r != 0:
-                    self.lattice[(r, q)] = Hexagon(self.beta, 0, self.beta, 0, 0, False)
+                    self.lattice[(r, q)] = Hexagon(self.beta, 0, self.beta, 0, 0, False, 0)
                 else:
-                    self.lattice[(r, q)] = Hexagon(0, 1, 1, 0, 0, False)
+                    self.lattice[(r, q)] = Hexagon(0, 1, 1, 0, 0, False, 0)
 
     def frozen_area(self):
         # returns the percentage of frozen area
@@ -109,17 +107,41 @@ class CrystalLattice:
         """
         if coordinates[0] in [self.size, -self.size] or coordinates[1] in [self.size, -self.size]:
             return True
+
         else:
             return False
 
-    def progress_tracking(self):
-        frozen = self.frozen_area()
-        if frozen == self.previous_frozen_area:
-            self.count_down += 1
-            self.previous_frozen_area = frozen
+    def all_ends_frozen(self):
+        """
+        Returns True if all 6 main branches are fully grown
+        """
+        frozen_ends = 0
+
+        # coordinates of the ends of the main branches
+        for coordinate in {(-(self.size-1), self.size-1), (self.size-1, -(self.size-1)),
+        (0, self.size-1), (0, -(self.size-1)), (self.size-1, 0), (-(self.size-1), 0)}:
+
+            # count the fully grown branches
+            if self.lattice[coordinate].state >= 1:
+                frozen_ends += 1
+
+        frozen = 0
+        for hex in self.lattice.keys():
+            if self.lattice[hex].state >= 1:
+                frozen += 1
+
+
+        # if all branches are fully grown
+        if frozen_ends == 6 or frozen_list[-1] == frozen_list[-2]:
+            print('{}% frozen cells'.format(self.frozen_area()))
+            print("--- %s seconds ---" % (time.time() - start_time))
+            print('beta = {}, gamma = {}'.format(self.beta, self.gamma))
+            pyglet.image.get_buffer_manager().get_color_buffer().save('images/beta={},gamma={}.png'.format(self.beta, self.gamma))
+            pyglet.app.exit()
+            return True
+
         else:
-            self.previous_frozen_area = frozen
-            self.count_down = 0
+            return False
 
     def umean_neighbours(self, coordinates):
         """
@@ -150,6 +172,8 @@ class CrystalLattice:
             # calculate how much water diffuses from neighbour cells
             self.lattice[hex].mean_u = self.umean_neighbours(hex)
 
+            # self.lattice[hex].mean_s = self.smean_eq_neighbours(hex)
+
         # go through all cells and reset the u and v
         for hex in self.lattice.keys():
 
@@ -171,34 +195,21 @@ class CrystalLattice:
         for hex in self.lattice.keys():
             # implement the rules from reiter's model
 
-            self.lattice[hex].u = self.lattice[hex].u + self.alpha/2 * (self.lattice[hex].mean_u - self.lattice[hex].u)
+            # cells at the grid boundary stay the same
+            if self.is_edge(hex):
+                self.lattice[hex].u = self.beta
 
-            # receptive cells
+            else:
+                # numerical approximation to the diffusion equation
+                self.lattice[hex].u = self.lattice[hex].u + self.alpha/2 * (self.lattice[hex].mean_u - self.lattice[hex].u)
+
+            # receptive, not edge cells
             if self.lattice[hex].receptive and not self.is_edge(hex):
                 self.lattice[hex].v = self.lattice[hex].v + self.gamma
 
             # for all cells state = u + v
             self.lattice[hex].state = self.lattice[hex].u + self.lattice[hex].v
 
-        # keep track of simulation progress
-        self.progress_tracking()
-
-"""
-The following part is from the enhanced reiter's model section of the
-Li paper, but it doesn't work properly yet because the wrong eq_neighbours
-are returned from the eq_neighbours function
-"""
-            # if both neighbours of the current cell aren't frozen
-            # neighbour0 = self.lattice[self.eq_neighbours(hex)[0]]
-            # neighbour1 = self.lattice[self.eq_neighbours(hex)[1]]
-
-            # if both neighbours of the current cell aren't frozen
-            # if all(state < 1 for state in (neighbour1.state, neighbour2.state)):
-            #
-            #     self.lattice[hex].delta +=  self.epsilon * (self.lattice[hex].mean_s - self.lattice[hex].state)
-            #
-            #     self.lattice[self.eq_neighbours(hex)[0]].delta += self.epsilon * (self.lattice[hex].mean_s - neighbour0.state)
-            #
-            #     self.lattice[self.eq_neighbours(hex)[1]].delta += self.epsilon * (self.lattice[hex].mean_s - neighbour1.state)
-            #
-            # self.lattice[hex].state += self.lattice[hex].delta
+            # stop the simulation if all main branches are fully grown
+        if self.all_ends_frozen():
+            return True
