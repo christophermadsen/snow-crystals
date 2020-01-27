@@ -30,7 +30,7 @@ class Window(pyglet.window.Window):
             print(f"Frozen cells: {self.CL.frozen_area()}%")
             print(f"--- {time.time() - self.start_time} seconds")
             print(f"beta={self.CL.beta}, gamma={self.CL.gamma}")
-            pyglet.image.get_buffer_manager().get_color_buffer().save(f"images/beta=crap, gamma={self.CL.gamma}.png")
+            pyglet.image.get_buffer_manager().get_color_buffer().save(f"images/beta={self.CL.beta}, gamma={self.CL.gamma}.png")
             pyglet.app.exit()
         else:
             self.CL.diffusion()
