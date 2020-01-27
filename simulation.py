@@ -137,10 +137,10 @@ class CrystalLattice:
 
         # if all branches are fully grown
         if frozen_ends == 6 or frozen_list[-1] == frozen_list[-2]:
-            print('{}% frozen cells'.format(self.frozen_area()))
-            print("--- %s seconds ---" % (time.time() - start_time))
-            print('beta = {}, gamma = {}'.format(self.beta, self.gamma))
-            pyglet.image.get_buffer_manager().get_color_buffer().save('images/beta={},gamma={}.png'.format(self.beta, self.gamma))
+            print(f"Frozen cells: {self.frozen_area()}")
+            print(f"--- {time.time() - start_time} seconds")
+            print(f"beta={self.beta}, gamma={self.gamma}")
+            pyglet.image.get_buffer_manager().get_color_buffer().save(f"images/beta={self.beta},gamma={self.gamma}.png")
             pyglet.app.exit()
             return True
 
