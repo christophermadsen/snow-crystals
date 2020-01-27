@@ -13,8 +13,6 @@ import sys
 import time
 import pickle
 import pyglet
-import csv
-start_time = time.time()
 
 class Hexagon:
     def __init__(self, u, v, state, mean_u, mean_s, receptive):
@@ -32,9 +30,11 @@ class CrystalLattice:
         self.alpha = alpha
         self.beta = beta
         self.gamma = gamma
-        self.frozen_list = [0]*19
+        self.max_repetitions = 20
         self.create_hexagonal_lattice()
-        print(self.beta, self.gamma)
+        self.count_down = 0
+        self.previous_frozen_area = 0
+        self.sim_start_time = time.time()
 
     def create_hexagonal_lattice(self):
         # We're using an axial coordinate system.
@@ -109,41 +109,17 @@ class CrystalLattice:
         """
         if coordinates[0] in [self.size, -self.size] or coordinates[1] in [self.size, -self.size]:
             return True
-
         else:
             return False
 
-    def all_ends_frozen(self):
-        """
-        Returns True if all 6 main branches are fully grown
-        """
-        frozen_ends = 0
-
-        # coordinates of the ends of the main branches
-        for coordinate in {(-(self.size-1), self.size-1), (self.size-1, -(self.size-1)),
-        (0, self.size-1), (0, -(self.size-1)), (self.size-1, 0), (-(self.size-1), 0)}:
-
-            # count the fully grown branches
-            if self.lattice[coordinate].state >= 1:
-                frozen_ends += 1
-
-        frozen = 0
-        for hex in self.lattice.keys():
-            if self.lattice[hex].state >= 1:
-                frozen += 1
-        self.frozen_list.append(frozen)
-
-        # if all branches are fully grown
-        if frozen_ends == 6 or frozen_list[-1] == frozen_list[-2]:
-            print(f"Frozen cells: {self.frozen_area()}")
-            print(f"--- {time.time() - start_time} seconds")
-            print(f"beta={self.beta}, gamma={self.gamma}")
-            pyglet.image.get_buffer_manager().get_color_buffer().save(f"images/beta={self.beta},gamma={self.gamma}.png")
-            pyglet.app.exit()
-            return True
-
+    def progress_tracking(self):
+        frozen = self.frozen_area()
+        if frozen == self.previous_frozen_area:
+            self.count_down += 1
+            self.previous_frozen_area = frozen
         else:
-            return False
+            self.previous_frozen_area = frozen
+            self.count_down = 0
 
     def umean_neighbours(self, coordinates):
         """
@@ -206,16 +182,14 @@ class CrystalLattice:
             # for all cells state = u + v
             self.lattice[hex].state = self.lattice[hex].u + self.lattice[hex].v
 
-        # stop the simulation if all main branches are fully grown
-        if self.all_ends_frozen():
-            return True
+        # keep track of simulation progress
+        self.progress_tracking()
 
-
-            """
-            The following part is from the enhanced reiter's model section of the
-            Li paper, but it doesn't work properly yet because the wrong eq_neighbours
-            are returned from the eq_neighbours function
-            """
+"""
+The following part is from the enhanced reiter's model section of the
+Li paper, but it doesn't work properly yet because the wrong eq_neighbours
+are returned from the eq_neighbours function
+"""
             # if both neighbours of the current cell aren't frozen
             # neighbour0 = self.lattice[self.eq_neighbours(hex)[0]]
             # neighbour1 = self.lattice[self.eq_neighbours(hex)[1]]

@@ -53,7 +53,8 @@ class DrawCrystal:
                 pyglet.graphics.draw_indexed(7, pyglet.gl.GL_TRIANGLES,
                                         self.vertex_order, ('v2i', hexagon),
                                         ('c3B', self.ice_white))
-            elif 0 < hex_object.state < 1:
+
+            else:
                 color = int(255 * hex_object.state)
                 color = tuple([color, color, color] * 7)
                 pyglet.graphics.draw_indexed(7, pyglet.gl.GL_TRIANGLES,
