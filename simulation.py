@@ -13,12 +13,11 @@ import sys
 import time
 import pickle
 import pyglet
-import time
 import csv
 start_time = time.time()
 
 class Hexagon:
-    def __init__(self, u, v, state, mean_u, mean_s, receptive, delta):
+    def __init__(self, u, v, state, mean_u, mean_s, receptive):
         self.u = u
         self.v = v
         self.state = state
@@ -27,8 +26,7 @@ class Hexagon:
         self.receptive = receptive
 
 class CrystalLattice:
-    def __init__(self, lattice_size, beta, gamma, alpha):
-        print(beta, gamma)
+    def __init__(self, lattice_size, alpha, beta, gamma):
         self.size = lattice_size
         self.lattice = {}
         self.alpha = alpha
@@ -55,9 +53,9 @@ class CrystalLattice:
                     continue
                 # Flipping q and r sorts the lattice in this construction method
                 if q != 0 or r != 0:
-                    self.lattice[(r, q)] = Hexagon(self.beta, 0, self.beta, 0, 0, False, 0)
+                    self.lattice[(r, q)] = Hexagon(self.beta, 0, self.beta, 0, 0, False)
                 else:
-                    self.lattice[(r, q)] = Hexagon(0, 1, 1, 0, 0, False, 0)
+                    self.lattice[(r, q)] = Hexagon(0, 1, 1, 0, 0, False)
 
     def frozen_area(self):
         # returns the percentage of frozen area
@@ -199,22 +197,16 @@ class CrystalLattice:
         for hex in self.lattice.keys():
             # implement the rules from reiter's model
 
-            # cells at the grid boundary stay the same
-            if self.is_edge(hex):
-                self.lattice[hex].u = self.beta
+            self.lattice[hex].u = self.lattice[hex].u + self.alpha/2 * (self.lattice[hex].mean_u - self.lattice[hex].u)
 
-            else:
-                # numerical approximation to the diffusion equation
-                self.lattice[hex].u = self.lattice[hex].u + self.alpha/2 * (self.lattice[hex].mean_u - self.lattice[hex].u)
-
-            # receptive, not edge cells
+            # receptive cells
             if self.lattice[hex].receptive and not self.is_edge(hex):
                 self.lattice[hex].v = self.lattice[hex].v + self.gamma
 
             # for all cells state = u + v
             self.lattice[hex].state = self.lattice[hex].u + self.lattice[hex].v
 
-            # stop the simulation if all main branches are fully grown
+        # stop the simulation if all main branches are fully grown
         if self.all_ends_frozen():
             return True
 

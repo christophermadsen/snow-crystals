@@ -14,11 +14,11 @@ import time
 import csv
 
 class Window(pyglet.window.Window):
-    def __init__(self, sim_type='animate', lattice_params=[70, 1, 0.3, 0.001]):
+    def __init__(self, sim_type='animate', lattice_params=[30, 1, 0.3, 0.001]):
         super(Window, self).__init__(700, 700)
         # self.CL = CrystalLattice(70, alpha = 1, beta=0.3, gamma=0.0001)
         self.CL = CrystalLattice(*lattice_params)
-        self.drawing = DrawCrystal(self.CL, self.get_size()[0], hexagon_side_length=2)
+        self.drawing = DrawCrystal(self.CL, self.get_size()[0], hexagon_side_length=5)
         self.sim_type = sim_type
         if self.sim_type == 'animate':
             pyglet.clock.schedule_interval(self.update, 1.0/5)
