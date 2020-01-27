@@ -25,11 +25,6 @@ class DrawCrystal:
         self.radians = [math.pi / 180 * r for r in self.degrees]
         self.calculate_lattice_drawing_coordinates()
 
-
-
-
-
-
     def hexagon_corners(self, x, y):
         corners = [int(round(x)), int(round(y))]
         for r in self.radians:
