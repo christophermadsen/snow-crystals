@@ -8,7 +8,7 @@ Date:                                                                       *
 *~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*
 """
 from drawing import DrawCrystal
-from hexagonal_grid import CrystalLattice
+from simulation import CrystalLattice
 import pyglet
 import time
 import csv

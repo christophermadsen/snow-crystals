@@ -8,7 +8,7 @@ Date:                                                                       *
 *~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*~.~*
 """
 
-from hexagonal_grid import CrystalLattice, Hexagon
+from simulation import CrystalLattice, Hexagon
 import math
 import pyglet
 
