@@ -65,8 +65,6 @@ if __name__ == '__main__':
     elif inp == 'experiment' or inp =='3':
         beta_list = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95]
         gamma_list = [0, 0.0001, 0.001, 0.0035, 0.01, 0.05, 1]
-        beta_list = [0, 0.1]
-        gamma_list = [0]
         n_exp = len(beta_list) * len(gamma_list)
 
         t = time.time()
