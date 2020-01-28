@@ -17,5 +17,5 @@ if __name__ == '__main__':
         file = open(f'experiments/{filename}', 'rb')
         crystal = pickle.load(file)
         file.close()
-        drawing = DrawCrystal(crystal, 500, hexagon_side_length=2, draw_program='PIL')
+        drawing = DrawCrystal(crystal, 700, hexagon_side_length=2, draw_program='PIL')
         drawing.draw()
