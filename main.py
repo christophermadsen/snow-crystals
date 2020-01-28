@@ -16,7 +16,7 @@ import pickle
 
 class Window(pyglet.window.Window):
     def __init__(self, lattice):
-        super(Window, self).__init__(500, 500)
+        super(Window, self).__init__(700, 700)
         self.CL = lattice
         self.drawing = DrawCrystal(self.CL, self.get_size()[0], hexagon_side_length=2)
         self.start_time = time.time()
@@ -42,7 +42,7 @@ class Window(pyglet.window.Window):
 
 if __name__ == '__main__':
     # The lattice for the 'animate' and 'draw' options
-    lattice_params = [70, 1, 0, 0] #grid dim, alpha, beta, gamma
+    lattice_params = [100, 1, 0.3, 0.0001] #grid dim, alpha, beta, gamma
     lattice = CrystalLattice(*lattice_params)
 
     inp = input("Do you want to animate, draw or experiment? ")
@@ -72,13 +72,13 @@ if __name__ == '__main__':
         outcomes = []
         for gamma in gamma_list:
             for beta in beta_list:
-                lattice = CrystalLattice(70, 1, beta, gamma)
+                lattice = CrystalLattice(100, 1, beta, gamma)
                 while lattice.count_down < 20:
                     lattice.diffusion()
                     print(f"Experiment: {exp}/{n_exp}, time elapsed: {time.time() - t:.2f}", end="\r")
                 exp += 1
                 outcomes.append([lattice.diffusion_counter, lattice.frozen_area(), lattice.beta, lattice.gamma])
-                file = open(f"experiments/beta={beta}_gamma={gamma}.pickle", 'wb')
+                file = open(f"bigger_experiments/beta={beta}_gamma={gamma}.pickle", 'wb')
                 pickle.dump(lattice, file)
                 file.close()
         pd.DataFrame(outcomes, columns=['diffusion_count', 'frozen_area', 'beta', 'gamma']).to_csv('statisticaloutcomes.csv', index=False)
