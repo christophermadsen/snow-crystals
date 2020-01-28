@@ -34,6 +34,7 @@ class CrystalLattice:
         self.create_hexagonal_lattice()
         self.count_down = 0
         self.previous_frozen_area = 0
+        self.diffusion_counter = 0
         self.sim_start_time = time.time()
 
     def create_hexagonal_lattice(self):
@@ -61,31 +62,31 @@ class CrystalLattice:
         # returns the percentage of frozen area
         return round(sum([1 for cell in self.lattice.keys() if self.lattice[cell].state >= 1]) / len(self.lattice) * 100, 2)
 
-    def eq_neighbours(self, coordinates):
-        r = coordinates[0]
-        q = coordinates[1]
-        if r < 0 and r%2 == 0 and q > 0:
-            return (r+1, q-1), (r+1, q-2)
-        elif r > 0 and r%2 == 0 and q < 0:
-            return (r-1, q-1), (r-1, q+2)
-        elif r > 0 and q < 0 and q%2 == 0:
-            return (r+1, q+1), (r-2, q+1)
-        elif r < 0 and q > 0 and q%2 == 0:
-            return (r+2, q-1), (r-1, q-1)
-        elif (r < 0 and q > 0) or (r > 0 and q < 0):
-            return (r-1, q-1), (r+1, q+1)
-        elif r != 0:
-            return (r+1, q-2), (r-1, q+2)
-        elif q > 0:
-            return (r-2, q+1), (r+2, q-1)
-        elif r == 0:
-            return (r+2, q-1), (r-2, q+1)
-        elif q == 0:
-            return (r-1, q+2), (r+1, q-2)
-
-    def smean_eq_neighbours(self, cell):
-        return (1/3) * (self.lattice[cell].state + self.lattice[self.eq_neighbours(cell)[0]].state
-        + self.lattice[self.eq_neighbours(cell)[1]].state)
+    # def eq_neighbours(self, coordinates):
+    #     r = coordinates[0]
+    #     q = coordinates[1]
+    #     if r < 0 and r%2 == 0 and q > 0:
+    #         return (r+1, q-1), (r+1, q-2)
+    #     elif r > 0 and r%2 == 0 and q < 0:
+    #         return (r-1, q-1), (r-1, q+2)
+    #     elif r > 0 and q < 0 and q%2 == 0:
+    #         return (r+1, q+1), (r-2, q+1)
+    #     elif r < 0 and q > 0 and q%2 == 0:
+    #         return (r+2, q-1), (r-1, q-1)
+    #     elif (r < 0 and q > 0) or (r > 0 and q < 0):
+    #         return (r-1, q-1), (r+1, q+1)
+    #     elif r != 0:
+    #         return (r+1, q-2), (r-1, q+2)
+    #     elif q > 0:
+    #         return (r-2, q+1), (r+2, q-1)
+    #     elif r == 0:
+    #         return (r+2, q-1), (r-2, q+1)
+    #     elif q == 0:
+    #         return (r-1, q+2), (r+1, q-2)
+    #
+    # def smean_eq_neighbours(self, cell):
+    #     return (1/3) * (self.lattice[cell].state + self.lattice[self.eq_neighbours(cell)[0]].state
+    #     + self.lattice[self.eq_neighbours(cell)[1]].state)
 
     def get_neighbours(self, hexagon_coordinates):
         # The neighbourhood of a hexagon
@@ -146,6 +147,8 @@ class CrystalLattice:
         return False
 
     def diffusion(self):
+        self.diffusion_counter += 1
+
         for hex in self.lattice.keys():
             # calculate how much water diffuses from neighbour cells
             self.lattice[hex].mean_u = self.umean_neighbours(hex)
