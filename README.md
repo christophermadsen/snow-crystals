@@ -48,6 +48,8 @@ Should you choose to run the third option 'experiment' all combinations in the b
 ```
 python draw_pickles.py
 ```
+If you'd like the visualization of the experiments to be in a nice format, make sure that the window size and hexagonal side length parameters in draw_pickles.py are the same as in main.py
+
 If you wish to learn more about the diffusion parameters alpha, beta and gamma, please view our report or read the comments in the code.
 
 
