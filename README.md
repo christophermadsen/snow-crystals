@@ -10,7 +10,7 @@ First make sure you have a version of Python 3 and all the prerequisite packages
 
 Our code offer 3 ways of viewing the formation of a snow crystal: A real time animation of the crystal lattice in the simulation over time, a final drawing at the end of the simulation and a series of experiments with optional drawing.
 
-To choose which of the 3 ways you'd like to execute, run the main.py file in your terminal with:
+To choose which of the 3 ways you'd like to execute, run the **main.py** file in your terminal with:
 ```
 python main.py
 ```
@@ -35,13 +35,13 @@ Adjustable parameters:
 - beta
 - gamma
 
-The parameters can be adjusted in the main part of the main.py file:
+The parameters can be adjusted in the main part of the **main.py** file:
 
 ![](main_params.PNG)
 
 Window size determines the quadratic dimensions of the drawing window. Lattice size determines the dimensions of the hexagonal grid, since it is a skewed axial coordinate system and a symmetric grid, adding 1 to the lattice size will increase the lattice by 1 in all 4 directions, -q, q, -r, r, this also includes hexagon between these coordinates. Bare in mind that the consequence of this is an exponential amount of hexagons as a function of the lattice size.
 
-In the example experiments (see the images and experiments folder) we use a lattice size of 100 and a window size of 700x700. We recommend using the provided parameters of a lattice size of 70 and window size of 500x500 otherwise the computation time will be too great.
+In the example experiments (see the images and experiments folder) we use a lattice size of **100** and a window size of **700x700**. We recommend using the provided parameters of a lattice size of **70** and window size of **500x500** otherwise the computation time will be too great.
 
 To reproduce the examples provided in the image folder you can look at the image name for the parameters and use either 'animate' or 'draw':
 
@@ -49,18 +49,18 @@ To reproduce the examples provided in the image folder you can look at the image
 
 ![](beta=0.4,gamma=0.0001.png)
 
-Should you choose to run the third option 'experiment' all combinations in the beta_list and gamma_list will be simulated and the crystal lattice will be saved as a .pickle in the experiments folder. To then visualize/draw the crystal lattices, we have provided another file 'draw_pickles'. Simply execute this file and all the crystal lattices will be visualised and added to the images folder:
+Should you choose to run the third option 'experiment' all combinations in the beta_list and gamma_list will be simulated and the crystal lattice will be saved as a .pickle in the experiments folder. To then visualize/draw the crystal lattices, we have provided another file **draw_pickles.py**. Simply execute this file and all the crystal lattices will be visualised and added to the images folder:
 
 ```
 python draw_pickles.py
 ```
-If you'd like the visualization of the experiments to be in a nice format, make sure that the window size and hexagonal side length parameters in draw_pickles.py are the same as in main.py
+If you'd like the visualization of the experiments to be in a nice format, make sure that the window size and hexagonal side length parameters in **draw_pickles.py** are the same as in **main.py**
 
-If you wish to learn more about the diffusion parameters alpha, beta and gamma, please view our report or read the comments in the code.
+*If you wish to learn more about the diffusion parameters alpha, beta and gamma, please view our report or read the comments in the code.*
 
 ## Prerequisites
 
-In this project we strictly use Python 3. All packages needed can be downloaded with pip or conda install.
+In this project we strictly use **Python 3**. All packages needed can be downloaded with pip or conda install.
 
 ```
 pip install pyglet
@@ -81,4 +81,4 @@ This project was part of the Project Computational Science course in the Computa
 Our code were based on the following papers:
 - Li,  J.   (2015).   On  the  modeling  of  snowflake  growth  usinghexagonal automata.
 - Reiter, C. A.  (2005).  A local cellular model for snow crystalgrowth.Chaos, Solitons & Fractals,23(4), 1111–1119
-- The graphics.py file by John Zelle
+- The **graphics.py** file by John Zelle
