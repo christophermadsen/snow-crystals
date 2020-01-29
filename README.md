@@ -21,6 +21,7 @@ The options are:
 - experiment / 3
 
 The code will execute by entering one of these 3 strings/integers:
+
 ![](prompt.PNG)
 
 ### Running Experiments
@@ -35,6 +36,7 @@ Adjustable parameters:
 - gamma
 
 The parameters can be adjusted in the main part of the main.py file:
+
 ![](main_params.PNG)
 
 Window size determines the quadratic dimensions of the drawing window. Lattice size determines the dimensions of the hexagonal grid, since it is a skewed axial coordinate system and a symmetric grid, adding 1 to the lattice size will increase the lattice by 1 in all 4 directions, -q, q, -r, r, this also includes hexagon between these coordinates. Bare in mind that the consequence of this is an exponential amount of hexagons as a function of the lattice size.
