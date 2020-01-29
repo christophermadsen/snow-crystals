@@ -20,7 +20,10 @@ The options are:
 - draw / 2
 - experiment / 3
 
-The code will execute by entering one of these 3 strings/numbers.
+The code will execute by entering one of these 3 strings/integers.
+
+### Running Experiments
+For all 3 options it is possible to change the parameters associated with the experiment. 'Draw' and 'animate' share the same parameters as they are essentially the same and 'experiment' works with 2 lists of beta and gamma values.
 
 ### Prerequisites
 
@@ -41,3 +44,7 @@ pip install pandas
 ## Acknowledgments
 
 This project was part of the Project Computational Science course in the Computational Science minor at the Universtiy of Amsterdam.
+
+Our code were based on the following papers:
+- Li,  J.   (2015).   On  the  modeling  of  snowflake  growth  usinghexagonal automata.
+- Reiter, C. A.  (2005).  A local cellular model for snow crystalgrowth.Chaos, Solitons & Fractals,23(4), 1111–1119
