@@ -24,7 +24,7 @@ The code will execute by entering one of these 3 strings/integers:
 
 ![](prompt.PNG)
 
-### Running Experiments
+## Running Experiments
 For all 3 options it is possible to change the parameters associated with the experiment. 'Draw' and 'animate' share the same parameters as they are essentially the same and 'experiment' works with 2 lists of beta and gamma values.
 
 Adjustable parameters:
@@ -43,6 +43,12 @@ Window size determines the quadratic dimensions of the drawing window. Lattice s
 
 In the example experiments (see the images and experiments folder) we use a lattice size of 100 and a window size of 700x700. We recommend using the provided parameters of a lattice size of 70 and window size of 500x500 otherwise the computation time will be too great.
 
+To reproduce the examples provided in the image folder you can look at the image name for the parameters and use either 'animate' or 'draw':
+
+![](file_name.PNG)
+
+![](beta=0.4,gamma=0.0001.png)
+
 Should you choose to run the third option 'experiment' all combinations in the beta_list and gamma_list will be simulated and the crystal lattice will be saved as a .pickle in the experiments folder. To then visualize/draw the crystal lattices, we have provided another file 'draw_pickles'. Simply execute this file and all the crystal lattices will be visualised and added to the images folder:
 
 ```
@@ -52,8 +58,7 @@ If you'd like the visualization of the experiments to be in a nice format, make 
 
 If you wish to learn more about the diffusion parameters alpha, beta and gamma, please view our report or read the comments in the code.
 
-
-### Prerequisites
+## Prerequisites
 
 In this project we strictly use Python 3. All packages needed can be downloaded with pip or conda install.
 
