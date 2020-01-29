@@ -208,7 +208,7 @@ class CrystalLattice:
             self.lattice[hex].u = self.lattice[hex].u + self.alpha/2 * (self.lattice[hex].mean_u - self.lattice[hex].u)
 
             # receptive cells
-            if self.lattice[hex].receptive and not self.is_edge(hex):
+            if self.lattice[hex].receptive:
                 self.lattice[hex].v = self.lattice[hex].v + self.gamma
 
             # for all cells state = u + v
