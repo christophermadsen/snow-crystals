@@ -14,9 +14,18 @@ import pyglet
 import time
 import pickle
 
+"""
+Class Window:
+    Description:
+        Animates or draws with the pyglet package using the CrystalLattice and
+        DrawCrystal objects.
+    Parameters:
+        lattice:
+            A CrystalLattice object
+"""
 class Window(pyglet.window.Window):
     def __init__(self, lattice):
-        super(Window, self).__init__(700, 700)
+        super(Window, self).__init__(500, 500)
         self.CL = lattice
         self.drawing = DrawCrystal(self.CL, self.get_size()[0], hexagon_side_length=2)
         self.start_time = time.time()
@@ -40,10 +49,18 @@ class Window(pyglet.window.Window):
         else:
             self.CL.diffusion()
 
+"""
+Please view the README for instructions on how to execute this file.
+"""
 if __name__ == '__main__':
     # The lattice for the 'animate' and 'draw' options
-    lattice_params = [100, 1, 0.3, 0.0001] #grid dim, alpha, beta, gamma
+    lattice_params = [70, 1, 0.3, 0.0001] #grid dim, alpha, beta, gamma
     lattice = CrystalLattice(*lattice_params)
+
+    # parameters for the 'experiments' option
+    beta_list = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95]
+    gamma_list = [0, 0.0001, 0.001, 0.0035, 0.01, 0.05, 1]
+    lattice_size = 70
 
     inp = input("Do you want to animate, draw or experiment? ")
     if inp == 'animate' or inp == '1':
@@ -63,8 +80,6 @@ if __name__ == '__main__':
         # pyglet.app.exit()
 
     elif inp == 'experiment' or inp =='3':
-        beta_list = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95]
-        gamma_list = [0, 0.0001, 0.001, 0.0035, 0.01, 0.05, 1]
         n_exp = len(beta_list) * len(gamma_list)
 
         t = time.time()
@@ -72,7 +87,7 @@ if __name__ == '__main__':
         outcomes = []
         for gamma in gamma_list:
             for beta in beta_list:
-                lattice = CrystalLattice(100, 1, beta, gamma)
+                lattice = CrystalLattice(lattice_size, 1, beta, gamma)
                 while lattice.count_down < 20:
                     lattice.diffusion()
                     print(f"Experiment: {exp}/{n_exp}, time elapsed: {time.time() - t:.2f}", end="\r")

@@ -11,9 +11,48 @@ Date:                                                                       *
 from simulation import CrystalLattice, Hexagon
 import math
 import pyglet
-# import PIL
 import PIL.ImageDraw as ImageDraw, PIL.Image as Image
 
+"""
+Class DrawCrystal:
+    Description:
+        Uses a CrystalLattice object to calculate the pixel coordinates for each
+        cell in a window. Then uses either pyglet or PIL to create a drawing from
+        the current states of the cells and their coordinates.
+    Parameters:
+        CrystalLatticeObject (object):
+            A CrystalLattice object
+        window_size (int):
+            The quadratic size for the window to display the drawin in
+        hexagon_side_length (int):
+            The pixel length of the sides of a hexagon
+        draw_program (str):
+            'pyglet' and 'PIL' may be used to choose a drawing program.
+            PIL is used for the experimental part in main.py and pyglet is used
+            for the animate and draw options.
+
+    Functions:
+        hexagon_corners:
+            Description:
+                Calculates the pixel coordinates of the vertices of a hexagon
+            Parameters:
+                x, y (int):
+                    Coordinates of the center vertex in a hexagon
+        compute_offsets:
+            Description:
+                Computes the placement of a hexagon in the window based on it's
+                skew axial coordinate in the CrystalLattice object.
+            Parameters:
+                hexagon_coordinates:
+                    Coordinates of a cell in the CrystalLattice object
+        calculate_lattice_drawing_coordinates:
+            Utilizes the other functions to calculate all vertex coordinates in
+            the drawing window.
+        draw:
+            uses either the pyglet or PIL package to draw the hexagons with
+            pixel coordinates calculated by calculate_lattice_drawing_coordinates
+            and fills in a color based on the state of each cell.
+"""
 class DrawCrystal:
     def __init__(self, CrystalLatticeObject, window_size, hexagon_side_length, draw_program='pyglet'):
         self.CL = CrystalLatticeObject
@@ -58,7 +97,6 @@ class DrawCrystal:
         for hexagon in self.CL.lattice:
             x, y = self.compute_offsets(hexagon)
             self.drawing_coordinates.append(self.hexagon_corners(x, y))
-
 
     def draw(self):
         if self.style == 'pyglet':
