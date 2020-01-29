@@ -25,6 +25,17 @@ The code will execute by entering one of these 3 strings/integers.
 ### Running Experiments
 For all 3 options it is possible to change the parameters associated with the experiment. 'Draw' and 'animate' share the same parameters as they are essentially the same and 'experiment' works with 2 lists of beta and gamma values.
 
+Adjustable parameters:
+- window size
+- crystal lattice dimensions
+- hexagon side lenghts
+- alpha
+- beta
+- gamma
+
+The parameters can be adjusted in the main part of the main.py file:
+![](main_parameters.png)
+
 ### Prerequisites
 
 In this project we strictly use Python 3. All packages needed can be downloaded with pip or conda install.
