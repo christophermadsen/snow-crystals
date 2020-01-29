@@ -6,8 +6,6 @@ In this project we use a custom grid from hexagonal cellular automate to simulat
 
 ## Getting Started
 
-First make sure you have a version of Python 3 and all the prerequisite packages (see below) installed.
-
 Our code offer 3 ways of viewing the formation of a snow crystal: A real time animation of the crystal lattice in the simulation over time, a final drawing at the end of the simulation and a series of experiments with optional drawing.
 
 To choose which of the 3 ways you'd like to execute, run the **main.py** file in your terminal with:
@@ -25,7 +23,7 @@ The code will execute by entering one of these 3 strings/integers:
 ![](prompt.PNG)
 
 ## Running Experiments
-For all 3 options it is possible to change the parameters associated with the experiment. 'Draw' and 'animate' share the same parameters as they are essentially the same and 'experiment' works with 2 lists of beta and gamma values.
+For all 3 options it is possible to change the parameters associated with the experiment. 'draw' and 'animate' share the same parameters as they are essentially the same and 'experiment' works with 2 lists of beta and gamma values.
 
 Adjustable parameters:
 - window size
@@ -60,7 +58,7 @@ If you'd like the visualization of the experiments to be in a nice format, make 
 
 ## Prerequisites
 
-In this project we strictly use **Python 3**. All packages needed can be downloaded with pip or conda install.
+In this project we strictly use **Python 3**. All packages needed can be downloaded with pip or conda install. Therefore make sure you have a version of Python 3 and all the prerequisite packages (see below) installed.
 
 ```
 pip install pyglet
