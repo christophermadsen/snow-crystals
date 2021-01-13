@@ -1,6 +1,6 @@
 # Snowcrystal Formation with Hexagonal Cellular Automata
 
-In this project we use a custom grid from hexagonal cellular automate to simulate the formation of snow crystals through diffusion limited aggregation. The goal is to research which underlying conditions the different archetypes of formations depend on.
+In this project we use a custom grid for hexagonal cellular automata to simulate the formation of snow crystals through diffusion limited aggregation. The goal is to research which underlying conditions the different archetypes of formations depend on.
 
 ![](snow-crystal.gif)
 
